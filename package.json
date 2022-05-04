@@ -1,0 +1,27 @@
+{
+  "name": "ps-wms-server",
+  "version": "1.0.0",
+  "description": "Printing Solution warehouse management system powered by react.js, node.js, express.js, mongodb, firebase, jwt",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ProgrammingHeroWC4/warehouse-management-server-side-rakibulmd.git"
+  },
+  "keywords": [
+    "warehouse",
+    "management",
+    "system",
+    "wms",
+    "react",
+    "app"
+  ],
+  "author": "@rakibulmd",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ProgrammingHeroWC4/warehouse-management-server-side-rakibulmd/issues"
+  },
+  "homepage": "https://github.com/ProgrammingHeroWC4/warehouse-management-server-side-rakibulmd#readme"
+}
