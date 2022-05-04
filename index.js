@@ -21,6 +21,20 @@ async function run() {
         await client.connect();
         const itemsCollection = client.db("pswms").collection("items");
         console.log("db connected");
+
+        //get items
+        app.get("/items", async (req, res) => {
+            const query = {};
+            const display = parseInt(req.query.display);
+            let result;
+            if (display) {
+                result = itemsCollection.find(query).limit(display);
+            } else {
+                result = itemsCollection.find(query);
+            }
+            const items = await result.toArray();
+            res.status(200).send(items);
+        });
     } finally {
     }
 }
