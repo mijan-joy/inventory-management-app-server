@@ -24,12 +24,19 @@ async function run() {
 
         //get items
         app.get("/inventory", async (req, res) => {
+            const email = req.query.email;
+            console.log("email", email);
             const query = {};
             const display = parseInt(req.query.display);
+            console.log("display", display);
             let result;
             if (display) {
                 result = itemsCollection.find(query).limit(display);
-            } else {
+            }
+            if (email) {
+                result = itemsCollection.find({ email: email });
+            }
+            if (!display && !email) {
                 result = itemsCollection.find(query);
             }
             const items = await result.toArray();
