@@ -35,11 +35,28 @@ async function run() {
             const items = await result.toArray();
             res.status(200).send(items);
         });
+
+        //get single item with id
         app.get("/inventory/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const item = await itemsCollection.findOne(query);
             res.status(200).send(item);
+        });
+
+        app.post("/inventory/:id", async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: req.body,
+            };
+            const result = await itemsCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+            res.send(result);
         });
     } finally {
     }
