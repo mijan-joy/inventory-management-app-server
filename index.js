@@ -44,7 +44,9 @@ async function run() {
             res.status(200).send(item);
         });
 
-        app.post("/inventory/:id", async (req, res) => {
+        // Update data
+
+        app.put("/inventory/:id", async (req, res) => {
             const id = req.params.id;
             const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
@@ -57,6 +59,14 @@ async function run() {
                 options
             );
             res.send(result);
+        });
+
+        //delete
+        app.delete("/inventory/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await itemsCollection.deleteOne(query);
+            res.status(200).send(result);
         });
     } finally {
     }
