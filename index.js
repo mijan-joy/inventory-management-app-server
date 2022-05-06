@@ -64,6 +64,13 @@ async function run() {
             res.status(200).send(items);
         });
 
+        //get items count
+        app.get("/inventorycount", async (req, res) => {
+            const query = {};
+            const count = await itemsCollection.countDocuments(query);
+            res.send({ count });
+        });
+
         app.get("/inventory/myitems", verifyAuthToken, async (req, res) => {
             const requestedEmail = req.decoded.email;
             const email = req.query.email;
