@@ -13,7 +13,18 @@ app.use(express.json());
 function verifyAuthToken(req, res, next) {
     const authHeader = req.headers?.authorization;
     console.log("from verify token", authHeader);
-    next();
+    if (!authHeader) {
+        return res.status(401).send({ message: "Unauthorized Access" });
+    }
+    const token = authHeader.split(" ")[1];
+    jwt.verify(token, process.env.SECRET_KEY, (error, decoded) => {
+        if (error) {
+            return res.status(403).send({ message: "Access Denied" });
+        }
+        console.log("decoded", decoded);
+        req.decoded = decoded;
+        next();
+    });
 }
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.gxu7n.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
@@ -54,11 +65,16 @@ async function run() {
         });
 
         app.get("/inventory/myitems", verifyAuthToken, async (req, res) => {
+            const requestedEmail = req.decoded.email;
             const email = req.query.email;
-            const query = { email: email };
-            const result = itemsCollection.find(query);
-            const items = await result.toArray();
-            res.status(200).send(items);
+            if (requestedEmail === email) {
+                const query = { email: email };
+                const result = itemsCollection.find(query);
+                const items = await result.toArray();
+                res.status(200).send(items);
+            } else {
+                res.status(403).send({ message: "Bad Request" });
+            }
         });
 
         //get single item with id
