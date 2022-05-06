@@ -4,10 +4,17 @@ const port = process.env.PORT || 5000;
 const cors = require("cors");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const jwt = require("jsonwebtoken");
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+function verifyAuthToken(req, res, next) {
+    const authHeader = req.headers?.authorization;
+    console.log("from verify token", authHeader);
+    next();
+}
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.gxu7n.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
@@ -22,23 +29,34 @@ async function run() {
         const itemsCollection = client.db("pswms").collection("items");
         console.log("db connected");
 
+        app.post("/login", async (req, res) => {
+            const user = req.body;
+            console.log("jwt user", user);
+            const authToken = jwt.sign(user, process.env.SECRET_KEY, {
+                expiresIn: "7d",
+            });
+            res.send({ authToken });
+        });
+
         //get items
         app.get("/inventory", async (req, res) => {
-            const email = req.query.email;
-            console.log("email", email);
             const query = {};
             const display = parseInt(req.query.display);
             console.log("display", display);
             let result;
             if (display) {
                 result = itemsCollection.find(query).limit(display);
-            }
-            if (email) {
-                result = itemsCollection.find({ email: email });
-            }
-            if (!display && !email) {
+            } else {
                 result = itemsCollection.find(query);
             }
+            const items = await result.toArray();
+            res.status(200).send(items);
+        });
+
+        app.get("/inventory/myitems", verifyAuthToken, async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const result = itemsCollection.find(query);
             const items = await result.toArray();
             res.status(200).send(items);
         });
