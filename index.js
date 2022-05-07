@@ -12,7 +12,6 @@ app.use(express.json());
 
 function verifyAuthToken(req, res, next) {
     const authHeader = req.headers?.authorization;
-    console.log("from verify token", authHeader);
     if (!authHeader) {
         return res.status(401).send({ message: "Unauthorized Access" });
     }
@@ -21,7 +20,6 @@ function verifyAuthToken(req, res, next) {
         if (error) {
             return res.status(403).send({ message: "Access Denied" });
         }
-        console.log("decoded", decoded);
         req.decoded = decoded;
         next();
     });
@@ -42,7 +40,6 @@ async function run() {
 
         app.post("/login", async (req, res) => {
             const user = req.body;
-            console.log("jwt user", user);
             const authToken = jwt.sign(user, process.env.SECRET_KEY, {
                 expiresIn: "7d",
             });
@@ -53,7 +50,7 @@ async function run() {
         app.get("/inventory", async (req, res) => {
             const query = {};
             const display = parseInt(req.query.display);
-            console.log("display", display);
+
             let result;
             if (display) {
                 result = itemsCollection.find(query).limit(display);
@@ -67,6 +64,34 @@ async function run() {
         //get items count
         app.get("/inventorycount", async (req, res) => {
             const query = {};
+            const count = await itemsCollection.countDocuments(query);
+            res.send({ count });
+        });
+
+        // low stock items count
+        app.get("/lowstockcount", async (req, res) => {
+            const query = { quantity: { $lt: 6 } };
+            const count = await itemsCollection.countDocuments(query);
+            res.send({ count });
+        });
+
+        //good stock count
+        app.get("/goodstockcount", async (req, res) => {
+            const query = { quantity: { $gt: 5 } };
+            const count = await itemsCollection.countDocuments(query);
+            res.send({ count });
+        });
+
+        //low sold count
+        app.get("/lowsoldcount", async (req, res) => {
+            const query = { sold: { $lt: 11 } };
+            const count = await itemsCollection.countDocuments(query);
+            res.send({ count });
+        });
+
+        //good sold count
+        app.get("/goodsoldcount", async (req, res) => {
+            const query = { sold: { $gt: 10 } };
             const count = await itemsCollection.countDocuments(query);
             res.send({ count });
         });
@@ -87,9 +112,7 @@ async function run() {
         //get single item with id
         app.get("/inventory/:id", async (req, res) => {
             const id = req.params.id;
-            console.log(typeof id);
             const hex = /[0-9A-Fa-f]{6}/g;
-            console.log(hex.test(id));
             if (!hex.test(id)) {
                 return res.status(400).send({ message: "Bad Request" });
             }
@@ -126,7 +149,6 @@ async function run() {
         //add or post data
         app.post("/inventory/manage/add", async (req, res) => {
             const doc = req.body;
-            console.log(doc);
             const result = await itemsCollection.insertOne(doc);
             res.status(200).send(result);
         });
