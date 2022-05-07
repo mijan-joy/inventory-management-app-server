@@ -87,6 +87,12 @@ async function run() {
         //get single item with id
         app.get("/inventory/:id", async (req, res) => {
             const id = req.params.id;
+            console.log(typeof id);
+            const hex = /[0-9A-Fa-f]{6}/g;
+            console.log(hex.test(id));
+            if (!hex.test(id)) {
+                return res.status(400).send({ message: "Bad Request" });
+            }
             const query = { _id: ObjectId(id) };
             const item = await itemsCollection.findOne(query);
             res.status(200).send(item);
