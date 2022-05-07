@@ -96,6 +96,7 @@ async function run() {
             res.send({ count });
         });
 
+        // get items by email
         app.get("/inventory/myitems", verifyAuthToken, async (req, res) => {
             const requestedEmail = req.decoded.email;
             const email = req.query.email;
@@ -112,41 +113,48 @@ async function run() {
         //get single item with id
         app.get("/inventory/:id", async (req, res) => {
             const id = req.params.id;
-            const hex = /[0-9A-Fa-f]{6}/g;
-            if (!hex.test(id)) {
+            try {
+                const query = { _id: ObjectId(id) };
+                const item = await itemsCollection.findOne(query);
+                res.status(200).send(item);
+            } catch (error) {
                 return res.status(400).send({ message: "Bad Request" });
             }
-            const query = { _id: ObjectId(id) };
-            const item = await itemsCollection.findOne(query);
-            res.status(200).send(item);
         });
 
-        // Update data
-
+        // Update doc
         app.put("/inventory/:id", async (req, res) => {
             const id = req.params.id;
-            const filter = { _id: ObjectId(id) };
-            const options = { upsert: true };
-            const updateDoc = {
-                $set: req.body,
-            };
-            const result = await itemsCollection.updateOne(
-                filter,
-                updateDoc,
-                options
-            );
-            res.send(result);
+            try {
+                const filter = { _id: ObjectId(id) };
+                const options = { upsert: true };
+                const updateDoc = {
+                    $set: req.body,
+                };
+                const result = await itemsCollection.updateOne(
+                    filter,
+                    updateDoc,
+                    options
+                );
+                res.send(result);
+            } catch (error) {
+                return res.status(400).send({ message: "Bad Request" });
+            }
         });
 
-        //delete
+        //delete doc
         app.delete("/inventory/:id", async (req, res) => {
             const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const result = await itemsCollection.deleteOne(query);
-            res.status(200).send(result);
+            try {
+                const query = { _id: ObjectId(id) };
+                const result = await itemsCollection.deleteOne(query);
+                res.status(200).send(result);
+            } catch (error) {
+                return res.status(400).send({ message: "Bad Request" });
+            }
         });
 
-        //add or post data
+        //add  doc
         app.post("/inventory/manage/add", async (req, res) => {
             const doc = req.body;
             const result = await itemsCollection.insertOne(doc);
