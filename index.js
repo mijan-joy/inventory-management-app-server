@@ -36,6 +36,7 @@ async function run() {
     try {
         await client.connect();
         const itemsCollection = client.db("pswms").collection("items");
+        const qnaCollection = client.db("pswms").collection("qna");
         console.log("db connected");
 
         app.post("/login", async (req, res) => {
@@ -57,6 +58,14 @@ async function run() {
             } else {
                 result = itemsCollection.find(query);
             }
+            const items = await result.toArray();
+            res.status(200).send(items);
+        });
+
+        //get items from qna
+        app.get("/qna", async (req, res) => {
+            const query = {};
+            const result = qnaCollection.find(query);
             const items = await result.toArray();
             res.status(200).send(items);
         });
