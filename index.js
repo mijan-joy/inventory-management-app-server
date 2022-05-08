@@ -139,8 +139,7 @@ async function run() {
                 if (requestedEmail === email) {
                     const query = { email: email };
                     const count = itemsCollection.countDocuments(query);
-
-                    res.status(200).send({ count });
+                    res.send({ count });
                 } else {
                     res.status(403).send({ message: "Bad Request" });
                 }
