@@ -49,6 +49,8 @@ async function run() {
 
         //get items
         app.get("/inventory", async (req, res) => {
+            const page = parseInt(req.query.page);
+            const pageSize = parseInt(req.query.pagesize);
             const query = {};
             const display = parseInt(req.query.display);
 
@@ -56,7 +58,10 @@ async function run() {
             if (display) {
                 result = itemsCollection.find(query).limit(display);
             } else {
-                result = itemsCollection.find(query);
+                result = itemsCollection
+                    .find(query)
+                    .skip(page * pageSize)
+                    .limit(pageSize);
             }
             const items = await result.toArray();
             res.status(200).send(items);
