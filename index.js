@@ -112,17 +112,40 @@ async function run() {
 
         // get items by email
         app.get("/inventory/myitems", verifyAuthToken, async (req, res) => {
+            const page = parseInt(req.query.page);
+            const pageSize = parseInt(req.query.pagesize);
             const requestedEmail = req.decoded.email;
             const email = req.query.email;
             if (requestedEmail === email) {
                 const query = { email: email };
-                const result = itemsCollection.find(query);
+                const result = itemsCollection
+                    .find(query)
+                    .skip(page * pageSize)
+                    .limit(pageSize);
                 const items = await result.toArray();
                 res.status(200).send(items);
             } else {
                 res.status(403).send({ message: "Bad Request" });
             }
         });
+
+        // get email items count
+        app.get(
+            "/inventory/myitemscount",
+            verifyAuthToken,
+            async (req, res) => {
+                const requestedEmail = req.decoded.email;
+                const email = req.query.email;
+                if (requestedEmail === email) {
+                    const query = { email: email };
+                    const count = itemsCollection.countDocuments(query);
+
+                    res.status(200).send({ count });
+                } else {
+                    res.status(403).send({ message: "Bad Request" });
+                }
+            }
+        );
 
         //get single item with id
         app.get("/inventory/:id", async (req, res) => {
