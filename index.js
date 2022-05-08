@@ -37,7 +37,6 @@ async function run() {
         await client.connect();
         const itemsCollection = client.db("pswms").collection("items");
         const qnaCollection = client.db("pswms").collection("qna");
-        console.log("db connected");
 
         app.post("/login", async (req, res) => {
             const user = req.body;
@@ -144,10 +143,6 @@ async function run() {
                     res.status(403).send({ message: "Bad Request" });
                 }
             }
-
-            // const query = {};
-            // const count = await itemsCollection.countDocuments(query);
-            // res.send({ count });
         );
 
         //get single item with id
