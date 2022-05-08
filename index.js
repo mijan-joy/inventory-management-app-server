@@ -136,9 +136,11 @@ async function run() {
             async (req, res) => {
                 const requestedEmail = req.decoded.email;
                 const email = req.query.email;
+                console.log(email);
                 if (requestedEmail === email) {
                     const query = { email: email };
                     const count = itemsCollection.countDocuments(query);
+                    console.log(count);
                     res.send({ count });
                 } else {
                     res.status(403).send({ message: "Bad Request" });
